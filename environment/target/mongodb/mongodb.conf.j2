@@ -1,0 +1,36 @@
+storage:
+  dbPath: {{data_dir}}
+  engine: wiredTiger # https://docs.mongodb.com/manual/reference/configuration-options/#storage.engine
+  syncPeriodSecs: {{app_config.syncPeriodSecs}}
+  journal:
+    enabled: true
+    commitIntervalMs: {{app_config.journal_commitIntervalMs}}
+  mmapv1:
+    preallocDataFiles: false
+    nsSize: 16
+    smallFiles: {{app_config.mmapv1_smallFiles}}
+  wiredTiger:
+    engineConfig:
+      cacheSizeGB: {{app_config.wiredTiger_cacheSizeGB}}
+      journalCompressor: {{app_config.wiredTiger_journalCompressor}}
+    collectionConfig:
+      blockCompressor: {{app_config.wiredTiger_blockCompressor}}
+    indexConfig:
+      prefixCompression: {{app_config.wiredTiger_prefixCompression}}
+net:
+  bindIp: 0.0.0.0
+  port: {{db_port}}
+  compression:
+    compressors: {{app_config.wiredTiger_netCompressor}}
+  serviceExecutor: {{app_config.wiredTiger_serviceExecutor}}
+operationProfiling:
+  slowOpThresholdMs: {{app_config.operationProfiling_slowOpThresholdMs}}
+  mode: {{app_config.operationProfiling_mode}}
+processManagement:
+  fork: true
+  pidFilePath: {{pidfile}}
+systemLog:
+  destination: file
+  path: {{logfile}}
+
+

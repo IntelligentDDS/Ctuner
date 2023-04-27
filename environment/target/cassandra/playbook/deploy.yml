@@ -1,0 +1,93 @@
+---
+- hosts: "{{host}}"
+  remote_user: "{{user}}"
+  vars:
+    # required extra vars:
+    #   - host
+    #   - task_id
+    #   - project_dir
+    #   - task_name
+    #   - workload_name
+    #   - task_rep
+    #   - user
+    #   - pwd
+    ansible_sudo_pass: "{{pwd}}"
+
+    db_name: cassandra
+    apt_requirements:
+      - libcurl4
+      - openjdk-8-jdk
+    cluster_name: "NoSQL - Test Cluster - {{10000000 | random | to_uuid}}"
+    deploy_home: "{{project_dir}}/environment/target/{{db_name}}"
+    data_dir: "{{deploy_home}}/data"
+    pidfile: "{{deploy_home}}/pidfile"
+    logfile: "{{deploy_home}}/log"
+    local_db_src: ../apache-cassandra-3.11.3-bin.tar.gz
+    db_src: "{{deploy_home}}/../apache-cassandra-3.11.3-bin.tar.gz"
+    db_server: "{{deploy_home}}/apache-cassandra-3.11.3"
+    local_db_config_template: ../{{db_name}}.yaml
+    db_config: "{{db_server}}/conf/cassandra.yaml"
+    local_jvm_config_template: ../jvm.options
+    jvm_config: "{{db_server}}/conf/jvm.options"
+    db_port: 7199
+    result_dir: "{{deploy_home}}/results/{{task_name}}"
+  pre_tasks: # set up a clean env
+    - name: load app_config information
+      include_vars:
+        file: "{{result_dir}}/{{task_id}}_app_config_{{workload_name}}_{{task_rep}}.yml"
+        name: app_config
+    - name: check requirements
+      apt:
+        name: "{{apt_requirements}}"
+      become: yes
+    - name: create folders
+      with_items:
+        - "{{deploy_home}}"
+        - "{{data_dir}}"
+      file:
+        path: "{{item}}"
+        state: directory
+        recurse: yes
+    - name: copy archive
+      copy:
+        src: "{{local_db_src}}"
+        dest: "{{db_src}}"
+    - name: unarchive
+      unarchive:
+        src: "{{db_src}}"
+        dest: "{{deploy_home}}"
+        remote_src: yes
+    - name: kill running (if any) instance
+      shell: "kill -9 $(lsof -t -i:{{db_port}}) || true" # kill by port
+    - name: clear data
+      file:
+        path: "{{data_dir}}"
+        state: "{{item}}"
+      with_items:
+        - absent
+        - directory
+    - name: clear log
+      file:
+        path: "{{logfile}}"
+        state: absent
+  tasks:
+    - name: copy config
+      template:
+        src: "{{local_db_config_template}}"
+        dest: "{{db_config}}"
+    - name: copy jvm config
+      template:
+        src: "{{local_jvm_config_template}}"
+        dest: "{{jvm_config}}"
+    - name: start
+      shell: "nohup {{db_server}}/bin/cassandra -R -p {{pidfile}} &"
+    - name: copy init cql script
+      template:
+        src: ../init.cql
+        dest: "{{deploy_home}}/init.cql"
+    - name: wait...
+      wait_for:
+        host: 127.0.0.1
+        port: 9042
+    - name: create keyspace
+      shell: "{{db_server}}/bin/cqlsh -f {{deploy_home}}/init.cql"

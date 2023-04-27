@@ -1,0 +1,109 @@
+---
+  jvm_min_heap_size:
+    min: 512
+    max: 4096
+    default: 4096
+    bucket_num: 10
+  jvm_max_heap_size:
+    min: 4096
+    max: 8192
+    default: 8192
+  jvm_young_generation_size:
+    min: 200
+    max: 2048
+    default: 1024
+    bucket_num: 10
+  jvm_use_g1gc:
+    range:
+      - "#-XX:+UseG1GC"
+      - "-XX:+UseG1GC"
+    default: "#-XX:+UseG1GC"
+  jvm_g1r:
+    range:
+      - "#-XX:G1RSetUpdatingPauseTimePercent=5"
+      - "-XX:G1RSetUpdatingPauseTimePercent=5"
+    default: "#-XX:G1RSetUpdatingPauseTimePercent=5"
+  jvm_max_gc_pause:
+    min: 20
+    max: 1000
+    default: 200
+    bucket_num: 10
+  jvm_par_gc_thread:
+    min: 1
+    max: 16
+    default: 8
+  jvm_conc_gc_thread_ratio:
+    min: 0.1
+    max: 1.0
+    float: yes
+    default: 0.25
+  trickle_fsync:
+    range:
+      - true
+      - false
+    default: false
+  trickle_fsync_interval_in_kb:
+    min: 5120
+    max: 20480
+    default: 10240
+  rpc_server_type:
+    range:
+      - sync
+      - hsha
+    default: sync
+  rpc_max_threads:
+    min: 256
+    max: 4096
+    default: 4096
+  # value range????
+  # rpc_send_buff_size_in_bytes:
+  #   min:
+  #   max:
+  #   default:
+  # rpc_recv_buff_size_in_bytes:
+  #   min:
+  #   max:
+  #   default:
+  thrift_framed_transport_size_in_mb:
+    min: 8
+    max: 32
+    default: 15
+  concurrent_compactors:
+    min: 2
+    max: 8
+    default: 2
+  compaction_throughput_mb_per_sec:
+    min: 8
+    max: 64
+    default: 16
+  sstable_preemptive_open_interval_in_mb:
+    min: 25
+    max: 100
+    default: 50
+  concurrent_reads:
+    min: 2
+    max: 128
+    default: 32
+    bucket_num: 10
+  concurrent_writes:
+    min: 2
+    max: 128
+    default: 32
+    bucket_num: 10
+  commitlog_sync:
+    range:
+      - periodic
+      - batch
+    default: periodic
+  commitlog_sync_period_in_ms:
+    min: 100
+    max: 10000
+    default: 10000
+  commitlog_sync_batch_window_in_ms:
+    min: 1
+    max: 100
+    default: 2
+  compression_chunk_length:
+    min: 1
+    max: 8
+    default: 6

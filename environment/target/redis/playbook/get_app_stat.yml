@@ -1,0 +1,34 @@
+---
+- hosts: "{{host}}"
+  vars:
+    # required extra vars:
+    #   - host
+    #   - project_dir
+    #   - user
+    #   - pwd
+    #   - target
+    ansible_sudo_pass: "{{pwd}}"
+
+    db_name: redis
+    tester_home: "{{project_dir}}/environment/target/{{db_name}}"
+    target_ip: "{{hostvars[target].ansible_ssh_host}}"
+    target_port: 6379
+    stat_path: "{{tester_home}}/stat"
+  remote_user: "{{user}}"
+  pre_tasks:
+    - name: ensure folder
+      file:
+        path: "{{tester_home}}"
+        state: directory
+        recurse: yes
+  tasks:
+    - name: get stat
+      shell: "{{tester_home}}/redis6-cli -h {{target_ip}} -p {{target_port}} info > {{stat_path}}"
+      ignore_errors: True
+      async: 8
+      poll: 2
+    - name: fetch stat
+      fetch:
+        src: "{{stat_path}}"
+        dest: "{{tester_home}}/stat"
+        flat: yes

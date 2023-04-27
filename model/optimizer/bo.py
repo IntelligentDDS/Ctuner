@@ -26,8 +26,6 @@ class BayesianOptimizer():
       pass
     #print(self.space)
     self.bo = BayesianOptimization(**self._make_config(conf))
-    # print('show make config:')
-    # print(self._make_config(conf))
 
   def _make_config(self, conf):
     return {
@@ -36,14 +34,7 @@ class BayesianOptimizer():
     }
 
   def add_observation(self, ob):
-    # ob: (x, y) while x is argument dict
-
     _x, y = ob
-    # print('show ob_x, i.e, sampled_config_numeric:')
-    # print(_x)
-    # print('show ob.y, i.e, metric_result:')
-    # print(y)
-    # dict to tuple regarding keys in self.space
     x = []
     for k in self.space.keys():
       x.append(_x[k])
@@ -51,16 +42,11 @@ class BayesianOptimizer():
     #print(x,y)
     # add ob into bo space
     try:
-      #space.add_observation(x, y) is define in the TargetSpace.py file
       self.bo.space.add_observation(x, y)
     except KeyError as e:
       # get exception message
       msg, = e.args
       raise Exception(msg)
-    # print('show ob.space.X，only values no keys:')
-    # print(self.bo.space.X)
-    # print('show ob.space.Y:')
-    # print(self.bo.space.Y)
     self.bo.gp.fit(self.bo.space.X, self.bo.space.Y)
 
   def get_conf(self):
@@ -86,8 +72,6 @@ class BayesianOptimizer():
     if x_max in self.bo.space:
       x_max = self.bo.space.random_points(1)[0]
 
-    # print('show xmax from acqmax():')
-    # print(x_max)
     return self._convert_to_dict(x_max)
 
   def _convert_to_dict(self, x_array):
@@ -99,7 +83,6 @@ class BayesianOptimizer():
 class ConfigedBayesianOptimizer(BayesianOptimizer):
   def __init__(self, config, bo_conf={}):
     self._config = {**config}
-    #print(self._config)
     bo_space = {}
     for k, v in self._config.items():
       v_range = v.get('range')
@@ -107,8 +90,6 @@ class ConfigedBayesianOptimizer(BayesianOptimizer):
         bo_space[k] = (0, len(v_range))  # note: right-close range
       else:
         bo_space[k] = (v['min'], v['max'])
-    #print(bo_space)
-    #print(bo_conf)
     super().__init__(bo_space, bo_conf)
 
   # get conf and convert to legal config
@@ -151,5 +132,4 @@ class ConfigedBayesianOptimizer(BayesianOptimizer):
       else:
         is_float = v.get('float', False)
         result[k] = sample_value if is_float else int(sample_value)
-    #print(result)
     return result

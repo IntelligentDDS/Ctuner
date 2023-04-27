@@ -1,0 +1,34 @@
+---
+  model_name: 'train_ddpg_1673444074_10'                  # Load existing parameters
+  memory: 'train_ddpg_1673444074'                  # Load existing replay memory
+  cur_knobs_path: ''
+  rf_dict_path: 'train_randomforest_1670833032'
+  millde_memory: 'train_meta_td3_1673010321'
+  cm_path: ''
+  task_name: ddpg_eval_cassandra_g
+  workload: workloadg                         # Workload type [`small`, `large`, `medium`, `stress`]
+  instance: cassandra                        # Choose Instance [`mongodb`, `cassandra`]
+  method: ddpg                            # Choose Algorithm to solve [`ddpg`]
+  batch_size: 128                          # Training Batch Size
+  max_steps: 100                                     # steps of per epoche
+  metric_num: 11                           # metric nums
+  default_knobs: 42                        # default knobs
+  tps_weight: 0.4                          # tps_weight + lat_weight = 1, the range is 0-1
+  isToLowDim: false                         # Whether to enable the mapping mechanism from high dimension to low dimension
+  LowDimSpace:
+    target_dim: 7                          # The value is 10% - 20% of default_knobs
+    low_method: hesbo                      # Choose [`hesbo`,`rembo`]
+    seed: 6                                # The seed of low_method
+  generate_csv: true                       # Whether to generate CSV
+  reward_mode: 3                          # reward mode, 1 is CDBTune reward, 2 is sample reward
+  n_client: 64
+  threshold: 20000
+  train_env_workload:
+    - workloada
+    - workloadb
+    - workloadc
+    - workloadd
+    - workloade
+  test_env_workload:
+    - workloadf
+    - stress

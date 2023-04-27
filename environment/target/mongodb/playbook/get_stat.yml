@@ -1,0 +1,41 @@
+---
+- hosts: "{{host}}"
+  vars:
+    # required extra vars:
+    #   - host
+    #   - project_dir
+    #   - user
+    #   - pwd
+    ansible_sudo_pass: "{{pwd}}"
+
+    db_name: mongodb
+    tester_home: "{{project_dir}}/environment/target/{{db_name}}"
+    stat_path: "{{tester_home}}/stat"
+    vmstat_path: "{{tester_home}}/vmstat"
+  remote_user: "{{user}}"
+  pre_tasks:
+    - name: ensure folder
+      file:
+        path: "{{tester_home}}"
+        state: directory
+        recurse: yes
+  tasks:
+    - name: get stat
+      shell: "timeout 3.1s mongostat > {{stat_path}}"
+      ignore_errors: True
+      async: 8
+      poll: 4
+    - name: get vmstat
+      shell: "vmstat > {{vmstat_path}}"
+      async: 8
+      poll: 2
+    - name: fetch run result
+      fetch:
+        src: "{{stat_path}}"
+        dest: "{{tester_home}}/stat"
+        flat: yes
+    - name: fetch run err
+      fetch:
+        src: "{{vmstat_path}}"
+        dest: "{{tester_home}}/vmstat"
+        flat: yes

@@ -23,7 +23,7 @@ class Causality():
         # initialize causal model object
         self.CM = CausalModel(self.columns)
         self.g = DiGraph()
-        # 添加节点
+        # add node
         self.g.add_nodes_from(self.columns)
         # edge constraints
         self.tabu_edges = self.CM.get_tabu_edges(self.columns, self.conf_opt, obj_columns)
@@ -39,7 +39,6 @@ class Causality():
         if not self.isGenerate:
             self.causal_memorys = CausalMemory()
 
-            # print("完成get_tabu_edges")
             if os.path.exists(cm_path):
                 self.causal_memorys.load_memory(cm_path)
                 print("--------------------------------------------------------------")
@@ -51,7 +50,7 @@ class Causality():
                 self.causal_memorys.init_data(self.columns)
                 self.causal_memorys.save(cm_path)
 
-            # 添加边
+            # add edge
             self.g.add_edges_from(self.causal_memorys.di_edges + self.causal_memorys.bi_edges)
 
             self.isGenerate = True

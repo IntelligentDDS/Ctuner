@@ -17,16 +17,12 @@ class CausalMemory(object):
         self.rc.append(data)
 
     def init_data(self, columns):
-        # print("colunms_len:",len(columns))
-        # print("columns:",columns)
         self.data = pd.DataFrame([], columns=columns)
         for j in columns:
             if self.data[j].dtype == 'object':
                 self.data[j] = self.data[j].astype('int64')
 
     def update_data(self, row, columns, knob_info):
-        # print("row_len:", len(row))
-        # print("row:",row)
         self.data.loc[len(self.data)] = row
         index = len(self.data) - 1
         for j in columns:

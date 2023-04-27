@@ -1,0 +1,33 @@
+---
+  model_name: ''                            # Load existing parameters
+  memory: ''                                # Load existing replay memory
+  cur_knobs_path: ''
+  rf_dict_path: 'train_randomforest_1670833947'
+  millde_memory: 'train_meta_td3_1672577096'
+  cm_path: ''
+  task_name: meta_td3_mongodb_4
+  workload: stress                          # Workload type [`small`, `large`, `medium`, `stress`]
+  instance: mongodb                       # Choose Instance [`mongodb`, `cassandra`]
+  method: meta_td3                             # Choose Algorithm to solve [`ddpg`]
+  batch_size: 128                          # Training Batch Size
+  epoches: 50                               # Training Epoches
+  t: 5                                    # steps of per epoche
+  metric_num: 23                           # metric nums
+  default_knobs: 31                        # default knobs
+  tps_weight: 0.4                          # tps_weight + lat_weight = 1, the range is 0-1
+  isToLowDim: false                         # Whether to enable the mapping mechanism from high dimension to low dimension
+  LowDimSpace:
+    target_dim: 6                          # The value is 10% - 20% of default_knobs
+    low_method: hesbo                      # Choose [`hesbo`,`rembo`]
+    seed: 3                                # The seed of low_method
+  generate_csv: true                       # Whether to generate CSV
+  reward_mode: 3                           # reward mode, 1 is CDBTune reward, 2 is sample reward
+  n_client: 64
+  threshold: 200
+  train_env_workload:
+    - workloada
+    - workloadb
+    - workloadc
+    - workloadd
+    - workloade
+  history_length: 10

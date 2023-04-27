@@ -28,13 +28,8 @@ class HesboOptimizer():
 
   def get_conf(self):
     sample = self.bo.get_conf()  #d-dim
-    #print(sample)
     converted = self._convert_back(sample) #D-dim list with [-1,1]
     # first is continuous value, second is translated
-    #print(sample)
-    #print(converted)
-    #print(dict(zip(self.config.keys(), converted)))
-    #return bo.X, real configs
     return sample, self._translate(dict(zip(self.config.keys(), converted)))
 
   def add_observation(self, ob):
@@ -67,11 +62,7 @@ class HesboOptimizer():
     # orders in sample are the same as in _config dict
     #   see: https://github.com/fmfn/BayesianOptimization/blob/d531dcab1d73729528afbffd9a9c47c067de5880/bayes_opt/target_space.py#L49
     #   self.bounds = np.array(list(pbounds.values()), dtype=np.float)
-    #print(dict(zip(sample.values(), self.config.items())))
     for sample_value, (k, v) in zip(sample.values(), self.config.items()):
-      #print(sample_value)
-      #print(k)
-      #print(v)
       v_range = v.get('range')
       if v_range:
         try:
@@ -93,8 +84,6 @@ class HesboOptimizer():
             sample_value, to_scale=(v.get('min'), v.get('max'))
         )
         result[k] = sample_value if is_float else int(sample_value)
-    #print(result)
-    #result real configs
     return result
 
   def _rescale(self, origin_v, to_scale, origin_scale=(-1, 1)):

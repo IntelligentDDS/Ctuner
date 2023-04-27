@@ -1,0 +1,40 @@
+---
+- hosts: "{{host}}"
+  vars:
+    # required extra vars:
+    #   - host
+    #   - project_dir
+    #   - user
+    #   - pwd
+    ansible_sudo_pass: "{{pwd}}"
+
+    db_name: cassandra
+    tester_home: "{{project_dir}}/environment/target/{{db_name}}"
+    nodetool_tablestats_path: "{{tester_home}}/nodetool_tablestats"
+    nodetool_info_path: "{{tester_home}}/nodetool_info"
+  remote_user: "{{user}}"
+  pre_tasks:
+    - name: ensure folder
+      file:
+        path: "{{tester_home}}"
+        state: directory
+        recurse: yes
+  tasks:
+    - name: get nodetool_tablestats
+      shell: "{{tester_home}}/apache-cassandra-3.11.3/bin/nodetool -Dcom.sun.jndi.rmiURLParsing=legacy tablestats > {{nodetool_tablestats_path}}"
+      async: 8
+      poll: 2
+    - name: get nodetool_info
+      shell: "{{tester_home}}/apache-cassandra-3.11.3/bin/nodetool -Dcom.sun.jndi.rmiURLParsing=legacy info > {{nodetool_info_path}}"
+      async: 8
+      poll: 2
+    - name: fetch nodetool_tablestats
+      fetch:
+        src: "{{nodetool_tablestats_path}}"
+        dest: "{{tester_home}}/nodetool_tablestats"
+        flat: yes
+    - name: fetch nodetool_info
+      fetch:
+        src: "{{nodetool_info_path}}"
+        dest: "{{tester_home}}/nodetool_info"
+        flat: yes

@@ -1,0 +1,13 @@
+---
+- hosts: "{{host}}"
+  vars:
+    # required extra vars:
+    #   - host
+    ansible_sudo_pass: 123456
+  remote_user: mgt
+  tasks:
+    - name: reboot machine
+      reboot:
+        # reboot_timeout: 600
+        post_reboot_delay: 120 # after the reboot, wait X seconds till all os initialization tasks are done
+      become: yes

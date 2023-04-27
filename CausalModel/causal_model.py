@@ -210,15 +210,6 @@ class CausalModel:
                                             query, objectives,
                                             bug_val, config, config_column,
                                             variable_types, option_values):
-
-        # print("path:",paths)
-        # print("query:",query)
-        # print("bug_val:",bug_val)
-        # print("config:",config)
-        # print("config_column:",config_column)
-        # print("variable_types:",variable_types)
-        # print("option_values",option_values)
-
         """This function is used to compute individual treatment effect"""
         from causality.estimation.nonparametric import CausalEffect 
         from causality.estimation.adjustments import AdjustForDirectCauses
@@ -239,18 +230,14 @@ class CausalModel:
             for p in paths:
                 m_paths[p[-1]].append(p[0])
 
-            # print("m_paths.items():",len(m_paths.items()))
             for key,_ in m_paths.items():
                 cur_p = []
                 if len(m_paths[key]) >=2:
                     indexes = [i for i,v in enumerate(paths) if key in v]
-                    # print("indexes:", len(indexes))
-                    # print("paths:", len(paths))
                     for ind in indexes:
                         cur_p.append(paths[ind])
                     paths = [i for j, i in enumerate(paths) if j not in indexes]
                     multi_paths.append(cur_p)
-            # print("249")
             # compute treatment effect
             if paths:
                 for path in paths:    
@@ -271,19 +258,12 @@ class CausalModel:
                                 # compute effect for each value for the options
                                 for val in option_values[path[i]]:
                                     x = pd.DataFrame({path[i] : [val], path[0] : [bestval[path[0]]]})
-                                    # print("effect:")
-                                    # print(x)
-                                    # cc = list(x.columns)
-                                    # for j in cc:
-                                    #     if x[j].dtype == 'object':
-                                    #         x[j] = x[j].astype('int64')
 
                                     cur_effect = effect.pdf(x)
                                     if max_effect < cur_effect:
                                         max_effect = cur_effect
                                         ite.append([path[i],val])
                                         selected_effect.append(max_effect)
-            # print("271")
             if multi_paths:
                 for mp in multi_paths:
                     for path in mp:    
@@ -302,12 +282,6 @@ class CausalModel:
                                         # compute effect for each value for the options
                                         for val in option_values[path[i]]:
                                             x = pd.DataFrame({path[i] : [val], objectives[0] : [bestval[objectives[0]]], objectives[1] : [bestval[objectives[1]]]})
-                                            # print("effect:")
-                                            # print(x)
-                                            # cc = list(x.columns)
-                                            # for j in cc:
-                                            #     if x[j].dtype == 'object':
-                                            #         x[j] = x[j].astype('int64')
 
                                             cur_effect = effect.pdf(x)
                                             # print("cur_effect:",cur_effect)
@@ -323,10 +297,6 @@ class CausalModel:
                                         # compute effect for each value for the options
                                         for val in option_values[path[i]]:
                                             x = pd.DataFrame({path[i] : [val], objectives[0] : [bestval[objectives[0]]], objectives[1] : [bestval[objectives[1]]], objectives[2] : [bestval[objectives[2]]]})
-                                            # cc = list(x.columns)
-                                            # for j in cc:
-                                            #     if x[j].dtype == 'object':
-                                            #         x[j] = x[j].astype('int64')
                                             cur_effect = effect.pdf(x)
                                             if max_effect < cur_effect:
                                                 max_effect = cur_effect
@@ -373,10 +343,6 @@ class CausalModel:
                            for val in option_values[path[i]]:
                                
                                x = pd.DataFrame({path[i] : [val], path[0] : [bestval]})
-                               # cc = list(x.columns)
-                               # for j in cc:
-                               #     if x[j].dtype == 'object':
-                               #         x[j] = x[j].astype('int64')
                                cur_effect = effect.pdf(x)
                               
                                if max_effect < cur_effect:

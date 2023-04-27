@@ -1,0 +1,70 @@
+---
+- hosts: "{{host}}"
+  remote_user: "{{user}}"
+  vars:
+    # required extra vars:
+    #   - host
+    #   - task_id
+    #   - project_dir
+    #   - task_name
+    #   - workload_name
+    #   - task_rep
+    #   - user
+    #   - pwd
+    ansible_sudo_pass: "{{pwd}}"
+
+    db_name: mongodb
+    apt_requirements:
+       - libcurl4
+    deploy_home: "{{project_dir}}/environment/target/{{db_name}}"
+    data_dir: "{{deploy_home}}/data"
+    pidfile: "{{deploy_home}}/pidfile"
+    logfile: "{{deploy_home}}/log"
+    local_db_src: ../{{db_name}}_server
+    db_server: "{{deploy_home}}/{{db_name}}_server"
+    local_db_config_template: ../{{db_name}}.conf.j2
+    db_config: "{{deploy_home}}/{{db_name}}.conf"
+    db_port: 27017
+    result_dir: "{{deploy_home}}/results/{{task_name}}"
+  pre_tasks: # set up a clean env
+    - name: load app_config information
+      include_vars:
+        file: "{{result_dir}}/{{task_id}}_app_config_{{workload_name}}_{{task_rep}}.yml"
+        name: app_config
+    - name: check requirements
+      apt:
+        name: "{{apt_requirements}}"
+      become: yes
+    - name: create folders
+      with_items:
+        - "{{deploy_home}}"
+        - "{{data_dir}}"
+      file:
+        path: "{{item}}"
+        state: directory
+        recurse: yes
+    - name: "copy {{db_name}} server"
+      copy:
+        src: "{{local_db_src}}"
+        dest: "{{db_server}}"
+        mode: a+x
+    - name: kill running (if any) instance
+      shell: "kill -9 $(lsof -t -i:{{db_port}}) || true" # kill by port
+    - name: clear data
+      file:
+        path: "{{data_dir}}"
+        state: "{{item}}"
+      with_items:
+        - absent
+        - directory
+    - name: clear log
+      file:
+        path: "{{logfile}}"
+        state: absent
+  tasks:
+    - name: copy config
+      template:
+        src: "{{local_db_config_template}}"
+        dest: "{{db_config}}"
+    - name: start
+      shell: "{{db_server}} -f {{db_config}}"

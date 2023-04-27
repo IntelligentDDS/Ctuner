@@ -1,0 +1,118 @@
+---
+  swappiness:
+    file: /proc/sys/vm/swappiness
+    min: 0
+    max: 100
+    default: 60
+    # float: yes # enable this to allow it to be non-int
+  somaxconn:
+    file: /proc/sys/net/core/somaxconn
+    min: 128
+    max: 4096
+    default: 128
+    bucket_num: 10
+  numa_balancing:
+    file: /proc/sys/kernel/numa_balancing
+    min: 0
+    max: 1
+    default: 0
+  dirty_ratio:
+    file: /proc/sys/vm/dirty_ratio
+    min: 20
+    max: 100
+    default: 20
+  dirty_background_ratio:
+    file: /proc/sys/vm/dirty_background_ratio
+    min: 0
+    max: 100
+    default: 10
+  dirty_expire_centisecs:
+    file: /proc/sys/vm/dirty_expire_centisecs
+    min: 100
+    max: 20000
+    default: 3000
+    bucket_num: 10
+  netdev_max_backlog:
+    file: /proc/sys/net/core/netdev_max_backlog
+    min: 100
+    max: 5000
+    default: 1000
+  rmem_max:
+    file: /proc/sys/net/core/rmem_max
+    min: 200000
+    max: 16777216
+    default: 212992
+    bucket_num: 10
+  wmem_max:
+    file: /proc/sys/net/core/wmem_max
+    min: 256
+    max: 16777216
+    default: 212992
+  tcp_max_syn_backlog:
+    file: /proc/sys/net/ipv4/tcp_max_syn_backlog
+    min: 128
+    max: 10240
+    default: 512
+  tcp_slow_start_after_idle:
+    file: /proc/sys/net/ipv4/tcp_slow_start_after_idle
+    min: 0
+    max: 1
+    default: 1
+  tcp_tw_reuse:
+    file: /proc/sys/net/ipv4/tcp_tw_reuse
+    min: 0
+    max: 1
+    default: 0
+  tcp_abort_on_overflow:
+    file: /proc/sys/net/ipv4/tcp_abort_on_overflow
+    min: 0
+    max: 1
+    default: 0
+  rq_affinity:
+    file: /sys/block/vda/queue/rq_affinity
+    min: 1
+    max: 2
+    default: 1
+  read_ahead_kb:
+    file: /sys/block/vda/queue/read_ahead_kb
+    min: 0
+    max: 512
+    default: 128
+    bucket_num: 10
+  #新增
+  transparent_hugepage_defrag:
+    file: /sys/kernel/mm/transparent_hugepage/defrag
+    range:
+      - always
+      - defer
+      - defer+madvise
+      - madvise
+      - never
+    restore_fallback: madvise
+    default: madvise
+  transparent_hugepage_enabled:
+    file: /sys/kernel/mm/transparent_hugepage/enabled
+    range:
+      - always
+      - madvise
+      - never
+    restore_fallback: madvise
+    default: madvise
+  dirty_writeback_centisecs:
+    file: /proc/sys/vm/dirty_writeback_centisecs
+    min: 100
+    max: 1000
+    default: 500
+    bucket_num: 10
+  fs_file_max:
+    file: /proc/sys/fs/file-max
+    min: 102400
+    max: 10240000
+    default: 307200
+    bucket_num: 10
+  fs_nr_open:
+    file: /proc/sys/fs/nr_open
+    min: 102400
+    max: 1024000
+    default: 1024000
+    bucket_num: 10

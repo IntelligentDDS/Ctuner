@@ -1,14 +1,3 @@
-#
-# OtterTune - util.py
-#
-# Copyright (c) 2017-18, Carnegie Mellon University Database Group
-#
-'''
-Created on Oct 24, 2017
-
-@author: dva
-'''
-
 import logging
 from numbers import Number
 

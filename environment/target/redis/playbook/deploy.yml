@@ -1,0 +1,77 @@
+---
+- hosts: "{{host}}"
+    # - v-one
+    # - "172.18.166.180:193"
+  gather_facts: no
+  remote_user: "{{user}}"
+  vars:
+    # required extra vars:
+    #   - host
+    #   - task_id
+    #   - project_dir
+    #   - task_name
+    #   - workload_name
+    #   - task_rep
+    #   - user
+    #   - pwd
+    apt_requirements:
+      # - openjdk-8-jdk
+    db_name: redis
+    deploy_home: "{{project_dir}}/environment/target/{{db_name}}"
+    pidfile: "{{deploy_home}}/pidfile"
+    logfile: "{{deploy_home}}/redis.log"
+    local_redis_src: ../redis6-server
+    redis_server: "{{deploy_home}}/redis6-server"
+    local_redis_config_template: ../redis6.conf.j2
+    redis_config: "{{deploy_home}}/redis6.conf"
+    redis_port: 6379
+    dbfilename: "{{deploy_home}}/dump.rdb"
+    appendfilename: "{{deploy_home}}/appendonly.aof"
+    local_result_dir: "{{deploy_home}}/results/{{task_name}}"
+    ansible_become_pass: "{{pwd}}"
+
+  pre_tasks: # set up a clean env
+    - name: load app_config information
+      include_vars:
+        file: "{{local_result_dir}}/{{task_id}}_app_config_{{workload_name}}_{{task_rep}}.yml"
+        name: app_config
+    # - name: check requirements
+    #   apt:
+    #     name: "{{apt_requirements}}"
+    #   become: yes
+    - name: create folder
+      file:
+        path: "{{deploy_home}}"
+        state: directory
+        recurse: yes
+    - name: copy redis server
+      copy:
+        src: "{{local_redis_src}}"
+        dest: "{{redis_server}}"
+        mode: a+x
+    - name: kill running (if any) instance
+      # shell: "kill -9 $(cat {{pidfile}}) || true"
+      #shell: "kill -9 $(lsof -t -i:{{redis_port}})" # kill by port
+      shell: "kill -9 $(lsof -t -i:{{redis_port}}) || true"
+    - name: clear dump data
+      file:
+        path: "{{dbfilename}}"
+        state: absent
+    - name: clear appendonly
+      file:
+        path: "{{appendfilename}}"
+        state: absent
+    # - name: reboot machine to prevent any performance degrading
+    #   reboot:
+  tasks:
+    - name: copy config
+      template:
+        src: "{{local_redis_config_template}}"
+        dest: "{{redis_config}}"
+    - name: start
+      shell: "{{redis_server}} {{redis_config}}"
+    - name: wait...
+      wait_for:
+        host: 127.0.0.1
+        port: "{{redis_port}}"
+        delay: 15 # wait 3 seconds till it initialized?

@@ -1,0 +1,94 @@
+---
+- hosts: "{{host}}"
+  vars:
+    # required extra vars:
+    #   - host
+    #   - target
+    #   - project_dir
+    #   - task_id
+    #   - task_rep
+    #   - workload_path
+    #   - n_client
+    #   - user
+    #   - pwd
+    #   - task_step
+    #   - workload_name
+    #   - task_name
+    ansible_sudo_pass: "{{pwd}}"
+
+    db_name: cassandra
+    apt_requirements:
+#      - openjdk-8-jdk
+    tester_home: "{{project_dir}}/environment/target/{{db_name}}"
+    target_ip: "{{hostvars[target].ansible_ssh_host}}"
+    target_port: 7199
+    local_ycsb_zip: "{{tester_home}}/ycsb-{{db_name}}-binding-0.15.0.tar.gz"
+    local_result_dir: "{{tester_home}}/results/{{task_name}}"
+    local_ycsb_workload: "{{workload_path}}"
+    local_db_cli_path: "{{tester_home}}/{{db_name}}-cli"
+    db_cli_path: "{{tester_home}}/{{db_name}}-cli"
+    ycsb_bin: "{{tester_home}}/ycsb-{{db_name}}-binding-0.15.0/bin/ycsb"
+    ycsb_workload: "{{workload_path}}"
+    load_result_path: "{{tester_home}}/load_result"
+    load_err_path: "{{tester_home}}/load_err"
+    run_result_path: "{{tester_home}}/run_result"
+    run_err_path: "{{tester_home}}/run_err"
+    n_client: "{{n_client}}"
+  remote_user: "{{user}}"
+  pre_tasks:
+#    - name: ensure jdk
+#      apt:
+#        name: "{{apt_requirements}}"
+#      become: yes
+    - name: ensure folder
+      file:
+        path: "{{tester_home}}"
+        state: directory
+        recurse: yes
+    - name: copy ycsb package
+      copy:
+        src: "{{local_ycsb_zip}}"
+        dest: "{{tester_home}}/ycsb.zip"
+    - name: unarchive ycsb
+      unarchive:
+        dest: "{{tester_home}}"
+        src: "{{tester_home}}/ycsb.zip"
+        remote_src: yes
+    - name: copy ycsb workload
+      copy:
+        src: "{{local_ycsb_workload}}"
+        dest: "{{ycsb_workload}}"
+    # - name: "copy {{db_name}} cli" # for ping test
+    #   copy:
+    #     src: "{{local_db_cli_path}}"
+    #     dest: "{{db_cli_path}}"
+    #     mode: a+x
+  tasks:
+    # - name: "ping {{db_name}}" # test if db server is fully set up
+    #   shell: "{{db_cli_path}} -h {{target_ip}} -p {{target_port}} ping"
+    #   retries: 10
+    #   delay: 3
+    - name: ycsb load
+      shell: "{{ycsb_bin}} load cassandra-cql -P {{ycsb_workload}} -threads {{n_client}} -p \"hosts={{target_ip}}\" 1>{{load_result_path}} 2>{{load_err_path}}"
+    - name: fetch load result
+      fetch:
+        src: "{{load_result_path}}"
+        dest: "{{local_result_dir}}/{{task_id}}_load_result_{{workload_name}}_{{task_step}}_{{task_rep}}"
+        flat: yes
+    - name: fetch load err
+      fetch:
+        src: "{{load_err_path}}"
+        dest: "{{local_result_dir}}/{{task_id}}_load_err_{{workload_name}}_{{task_step}}_{{task_rep}}"
+        flat: yes
+    - name: ycsb run
+      shell: "{{ycsb_bin}} run cassandra-cql -P {{ycsb_workload}} -threads {{n_client}} -p \"hosts={{target_ip}}\" 1>{{run_result_path}} 2>{{run_err_path}}"
+    - name: fetch run result
+      fetch:
+        src: "{{run_result_path}}"
+        dest: "{{local_result_dir}}/{{task_id}}_run_result_{{workload_name}}_{{task_step}}_{{task_rep}}"
+        flat: yes
+    - name: fetch run err
+      fetch:
+        src: "{{run_err_path}}"
+        dest: "{{local_result_dir}}/{{task_id}}_run_err_{{workload_name}}_{{task_step}}_{{task_rep}}"
+        flat: yes

@@ -1,0 +1,82 @@
+---
+  # maxmemory and eviction policy
+  maxmemory:
+    min: 4
+    max: 8
+    default: 4
+  maxmemory_policy:
+    range:
+      - allkeys-random
+      - allkeys-lfu
+      - allkeys-lru
+    default: allkeys-random
+  long_time:
+    min: 600
+    max: 1200
+    default: 900
+    bucket_num: 10
+  long_time_changedkeys:
+    min: 1
+    max: 5
+    default: 1
+  medium_time:
+    min: 180
+    max: 360
+    default: 300
+  medium_time_changedkeys:
+    min: 10
+    max: 20
+    default: 10
+  short_time:
+    min: 10
+    max: 120
+    default: 60
+  short_time_changedkeys:
+    min: 1000
+    max: 10000
+    default: 10000
+  rdb_save_fsync:
+    range:
+      - 'yes'
+      - 'no'
+    default: 'no'
+# open IO multi-thread or not
+  io_threads:
+    range:
+      - 'yes'
+      - 'no'
+    default: 'no'
+  io_threads_num:
+    min: 1
+    max: 6
+    default: 2
+# open appendonly or not
+  appendonly_switch:
+    range:
+      - 'yes'
+      - 'no'
+    default: 'no'
+  append_fsync:
+    range:
+      - always
+      - everysec
+      - 'no'
+    default: 'no'
+  no_appendfsync_on_rewrite_switch:
+    range:
+      - 'yes'
+      - 'no'
+    default: 'no'
+  auto_aof_rewrite_percent:
+    min: 50
+    max: 800
+    default: 100
+  auto_aof_rewrite_size:
+    min: 16
+    max: 128
+    default: 64
+  aof_rewrite_fsync:
+    range:
+      - 'yes'
+      - 'no'
+    default: 'no'

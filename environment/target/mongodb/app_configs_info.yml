@@ -1,0 +1,64 @@
+---
+  syncPeriodSecs:
+    min: 1
+    max: 60
+    default: 60
+  journal_commitIntervalMs:
+    min: 1
+    max: 500
+    default: 100
+  mmapv1_smallFiles:
+    range:
+      - true
+      - false
+    default: false
+  wiredTiger_cacheSizeGB:
+    min: 0.25
+    max: 5
+    float: yes
+    default: 3.5
+    bucket_num: 10
+  wiredTiger_journalCompressor:
+    range:
+      - none
+      - snappy
+      - zlib
+    default: snappy
+  wiredTiger_blockCompressor:
+    range:
+      - none
+      - snappy
+      - zlib
+    default: snappy
+  wiredTiger_prefixCompression:
+    range:
+      - true
+      - false
+    default: true
+  #  用于Mongod或Mongos实例之间的通信的默认压缩程序
+  wiredTiger_netCompressor:
+    range:
+      - disabled
+      - snappy
+      - zlib
+    default: snappy
+  #  决定mongos用于执行客户端请求的线程和执行模型
+  wiredTiger_serviceExecutor:
+    range:
+      - synchronous
+      - adaptive
+    default: synchronous
+  #  新增
+  #  慢操作时间阈值（毫秒），运行时间超过此阈值的操作被认为是缓慢的
+  operationProfiling_slowOpThresholdMs:
+    min: 70
+    max: 170
+    default: 100
+  #  指定mongodb要分析哪些操作
+  operationProfiling_mode:
+    range:
+      - 'off'
+      - 'slowOp'
+      - 'all'
+    default: 'off'
+

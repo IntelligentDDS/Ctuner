@@ -1,0 +1,85 @@
+---
+- hosts: "{{host}}"
+  vars:
+    # required extra vars:
+    #   - host
+    #   - project_dir
+    #   - task_id
+    #   - workload_name
+    #   - task_name
+    #   - task_rep
+    #   - user
+    #   - pwd
+    db_name: mongodb
+    set_home: "{{project_dir}}/environment/target/{{db_name}}"
+    home_dir: "{{set_home}}/os_config_backup"
+    local_result_dir: "{{set_home}}/results/{{task_name}}"
+    ansible_sudo_pass: "{{pwd}}"
+    os_configs_info:
+    sampled_config_file: "{{set_home}}/results/{{task_name}}/{{task_id}}_os_config_{{workload_name}}_{{task_rep}}.yml"
+  remote_user: "{{user}}"
+  pre_tasks:
+    - name: load os_config information
+      include_vars:
+        file: "{{set_home}}/os_configs_info.yml"
+        name: os_configs_info
+      tags:
+        - cleanup
+        - always
+    - name: ensure home dir
+      file:
+        path: "{{home_dir}}"
+        recurse: yes
+    - name: backup
+      with_dict: "{{os_configs_info}}"
+      shell: "cp -n {{item.value.file}} {{home_dir}}/{{item.key}}" # -n for no overwrite
+      when: "not item.value.get('complex', False)"
+  tasks: # set configs specified by sampled values
+    - name: read sampled os config
+      include_vars:
+        file: "{{sampled_config_file}}"
+        name: sample
+    - name: set os configs
+      with_dict: "{{os_configs_info}}"
+      shell: "echo {{sample[item.key]}} > {{item.value.file}}"
+      when: "not item.value.get('complex', False)"
+      become: yes
+    - name: set complex os configs
+      with_dict: "{{os_configs_info}}"
+      shell: "{{item.value.cmd_before}}{{sample[item.key]}}{{item.value.cmd_after}}"
+      args:
+        warn: no
+      when: "item.value.get('complex', False)"
+      become: yes
+    - name: activate all configs
+      shell: "sysctl -p" # is it needed?? https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/deployment_guide/s2-proc-dir-sys
+      become: yes
+  post_tasks:
+    - name: check if backup exists
+      stat:
+        path: "{{home_dir}}"
+      register: stat_result
+      tags:
+        - cleanup
+        - never # prevent this task being run by default
+    - tags:
+        - cleanup
+        - never
+      when: "stat_result.stat.exists"
+      block:
+        - name: restore os configs
+          with_dict: "{{os_configs_info}}"
+          shell: "echo $(cat {{home_dir}}/{{item.key}}) > {{item.value.file}} || echo {{item.value.get('restore_fallback')}} > {{item.value.file}}" # if first restoring failed, try to use 'restore_fallback'
+          when: "not item.value.get('complex', False)"
+          become: yes
+        - name: restore complex os configs
+          with_dict: "{{os_configs_info}}"
+          shell: "{{item.value.cmd_before}}{{item.value.default}}{{item.value.cmd_after}}"
+          args:
+            warn: no
+          when: "item.value.get('complex', False)"
+          become: yes
+        - name: clear backup
+          file:
+            path: "{{home_dir}}"
+            state: absent

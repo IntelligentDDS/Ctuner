@@ -1,0 +1,30 @@
+---
+- hosts: "{{host}}"
+  vars:
+    # required extra vars:
+    #   - host
+    #   - project_dir
+    #   - user
+    #   - pwd
+    ansible_sudo_pass: "{{pwd}}"
+
+    db_name: redis
+    tester_home: "{{project_dir}}/environment/target/{{db_name}}"
+    vmstat_path: "{{tester_home}}/vmstat"
+  remote_user: "{{user}}"
+  pre_tasks:
+    - name: ensure folder
+      file:
+        path: "{{tester_home}}"
+        state: directory
+        recurse: yes
+  tasks:
+    - name: get vmstat
+      shell: "vmstat > {{vmstat_path}}"
+      async: 8
+      poll: 2
+    - name: fetch vmstat
+      fetch:
+        src: "{{vmstat_path}}"
+        dest: "{{tester_home}}/vmstat"
+        flat: yes

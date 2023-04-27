@@ -1,0 +1,43 @@
+---
+  model_name: ''                            # Load existing parameters
+  memory: ''                                # Load existing replay memory
+  millde_memory: 'train_all_1670575121'
+  cm_path: ''
+  task_name: td3_2
+  workload: stress                          # Workload type [`small`, `large`, `medium`, `stress`]
+  instance: redis                        # Choose Instance [`mongodb`, `cassandra`]
+  method: td3                             # Choose Algorithm to solve [`ddpg`]
+  batch_size: 64                          # Training Batch Size
+  epoches: 20                               # Training Epoches
+  t: 18                                    # steps of per epoche
+  metric_num: 14                           # metric nums
+  default_knobs: 37                        # default knobs
+  tps_weight: 0.4                          # tps_weight + lat_weight = 1, the range is 0-1
+  isToLowDim: false                         # Whether to enable the mapping mechanism from high dimension to low dimension
+  LowDimSpace:
+    target_dim: 6                          # The value is 10% - 20% of default_knobs
+    low_method: hesbo                      # Choose [`hesbo`,`rembo`]
+    seed: 3                                # The seed of low_method
+  generate_csv: true                       # Whether to generate CSV
+  reward_mode: 3                           # reward mode, 1 is CDBTune reward, 2 is sample reward
+  n_client: 16
+  train_env_workload:
+    - workloada
+    - workloadb
+    - workloadc
+    - workloadd
+    - workloade
+  test_env_workload:
+    - workloadf
+    - stress
+  seed:  10
+  history_length: 10
+  sample_mult: 2
+  enable_adaptation: true
+  total_timesteps: 3000
+  min_buffer_size: 10000
+  replay_size: 100000
+  multi_replay_size: 1000
+  num_train_steps: 80  # 每次的训练步数 80
+  eval_freq: 100000
+  num_tasks_sample: 1

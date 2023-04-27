@@ -1,0 +1,20 @@
+---
+  model_name: ''                            # Load existing parameters
+  cm_path: ''
+  millde_memory: ''
+  task_name: meta_hesbo_1
+  workload: stress                          # Workload type [`small`, `large`, `medium`, `stress`]
+  instance: redis                        # Choose Instance [`mongodb`, `cassandra`]
+  method: hesbo                             # Choose Algorithm to solve [`ddpg`]
+  metric_num: 14
+  iter_limit: 200
+  tps_weight: 0.4                          # tps_weight + lat_weight = 1, the range is 0-1
+  n_client: 64
+  extra_vars:
+    acq: ei
+  train_env_workload:
+    - workloada
+    - workloadb
+    - workloadc
+    - workloadd
+    - workloade

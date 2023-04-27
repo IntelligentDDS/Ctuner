@@ -13,9 +13,9 @@ from environment import knobs
 
 class Causality():
     def __init__(self, conf_opt, perf_columns, obj_columns, knobs_info, cm_path):
-        self.all = conf_opt + perf_columns + ['wk_type'] + obj_columns  # 所有参数
+        self.all = conf_opt + perf_columns + ['wk_type'] + obj_columns  # all parameters
         self.columns = conf_opt + obj_columns
-        self.conf_opt = conf_opt  # 配置参数
+        self.conf_opt = conf_opt  # configuration parameters
         self.perf_columns = perf_columns
         self.obj_columns = obj_columns
         self.knobs_info = knobs_info
@@ -38,7 +38,6 @@ class Causality():
     def init_causality(self, cm_path):
         if not self.isGenerate:
             self.causal_memorys = CausalMemory()
-            # print("完成get_tabu_edges")
             if os.path.exists(cm_path):
                 self.causal_memorys.load_memory(cm_path)
                 print("--------------------------------------------------------------")
@@ -111,9 +110,6 @@ class Causality():
             config = self.CM.compute_individual_treatment_effect(self.causal_memorys.causalData, paths,
                                                                 self.query, self.obj_columns, ref[self.obj_columns],
                                                                 previous_config, self.conf_opt, self.var_types,  self.option_values)
-        end = time.time() - start
-        # print("Time", end)
-
         # perform intervention. This updates the init_data
         if len(config)>0:
             return self.value_to_action(config), self.value_to_system(config, episode, t, workload_name),
@@ -141,8 +137,6 @@ class Causality():
         return np.array(action)
 
     def value_to_action(self, config):
-        # print("self.knobs_info:",len(self.knobs_info))
-        # print("config:",len(config))
         action = []
         for i, value in enumerate(self.knobs_info.items()):
             key, v = value
