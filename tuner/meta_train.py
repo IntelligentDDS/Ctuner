@@ -50,7 +50,7 @@ if __name__ == '__main__':
     train_tasks, eval_tasks = opt.train_env_workload, opt.test_env_workload
     model.init_tasks_buffer(train_tasks)
 
-    # 判断是否继续训练
+    # Determine whether to continue training
     init_episode = 0
     exist_task_episode, result_dir = env.find_exist_task_result()
     eu._print(f'previous results found, with max task_episode={exist_task_episode}')
@@ -63,7 +63,7 @@ if __name__ == '__main__':
         eu._print(f'continue with task_episode={exist_task_episode}')
         init_episode = exist_task_episode
 
-    # 初始化训练文件夹
+    # Initialize the training folder
     utils.init_dir(opt.instance)
 
     expr_name = 'train_{}_{}'.format(opt.method, str(utils.get_timestamp()))
