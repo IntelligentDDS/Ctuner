@@ -46,6 +46,10 @@
       - 'yes'
       - 'no'
     default: 'no'
+  maxclients:
+    min: 2000
+    max: 20000
+    default: 10000
   io_threads_num:
     min: 1
     max: 6

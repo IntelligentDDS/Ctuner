@@ -23,11 +23,12 @@ net:
   compression:
     compressors: {{app_config.wiredTiger_netCompressor}}
   serviceExecutor: {{app_config.wiredTiger_serviceExecutor}}
+  maxIncomingConnections: {{app_config.net_maxIncomingConnections}}
 operationProfiling:
   slowOpThresholdMs: {{app_config.operationProfiling_slowOpThresholdMs}}
   mode: {{app_config.operationProfiling_mode}}
 processManagement:
-  fork: true
+  fork: {{app_config.processManagement_fork}}
   pidFilePath: {{pidfile}}
 systemLog:
   destination: file

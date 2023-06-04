@@ -1,5 +1,5 @@
 # Ctuner
-CTuner: Automatic NoSQL Database Tuning with Causal Reinforcement Learning
+CTuner: Automatic  Distributed NoSQL Database Tuning with Causal Reinforcement Learning
 
 ## Summary
 
